@@ -1,0 +1,22 @@
+HTML
+
+<h1>NGO Reports</h1>
+
+<table>
+    <tr>
+        <th>Year</th>
+        <th>Month</th>
+        <th>Internal Attendance</th>
+        <th>External Attendance</th>
+        <th>Death</th>
+    </tr>
+    {% for report in reports %}
+    <tr>
+        <td>{{ report.year}}</td>
+        <td>{{ report.month}}</td>
+        <td>{{ report.internal_attendance}}</td>
+        <td>{{ report.external_attendance}}</td>
+        <td>{{ report.death}}</td>
+    </tr>
+    {% endfor %}
+</table>
