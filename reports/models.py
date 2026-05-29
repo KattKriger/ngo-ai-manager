@@ -23,6 +23,8 @@ class Report(models.Model):
 
     rescue_animals = models.IntegerField(null=True, blank=True)
 
+    donations = models.IntegerField(null=True, blank=True)
+
     sheltered_animals = models.IntegerField(null=True, blank=True)
 
     def _str_(self):
