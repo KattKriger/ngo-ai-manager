@@ -1,4 +1,4 @@
-from django.db import models
+
 
 from django.db import models
 
@@ -25,5 +25,5 @@ class Report(models.Model):
 
     sheltered_animals = models.IntegerField(null=True, blank=True)
 
-    def _str_(self):
-        return f"(self.year) - (self.month)"
+    def __str__(self):
+        return f"{self.year} - {self.month}"
