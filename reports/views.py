@@ -7,6 +7,9 @@ def report_list(request):
 
     selected_year = request.GET.get('year')
 
+
+    selected_year = request.GET.get('year')
+
     reports = Report.objects.all()
 
     if selected_year:
