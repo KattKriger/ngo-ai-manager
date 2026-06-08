@@ -29,3 +29,11 @@ class Report(models.Model):
 
     def __str__(self):
         return f"{self.year} - {self.month}"
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['year', 'month'],
+                name='unique_year_month'
+            )
+        ]
