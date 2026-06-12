@@ -1,0 +1,15 @@
+HTML
+
+<h1>AI Assistant</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <input type="text" name="question" placeholder="Ask a question...">
+    <button type="submit">Analyze</button>
+</form>
+
+<p>{{ answer }}</p>
+
+<hr>
+
+<h3>{{ answer }}</h3>

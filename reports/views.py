@@ -237,4 +237,32 @@ def delete_report(request, report_id):
 
     return redirect('/')
 
+def ai_assistant(request):
+    answer = ""
 
+    if request.method == 'POST':
+        question = request.POST.get('question',"").lower()
+        reports = Report.objects.all()
+
+        total_attendance = sum(
+            (r.internal_attendance or 0) + (r.external_attendance or 0)
+            for r in reports
+        )
+
+        if "best year" in question:
+            answer = f"The best attendance yaer was {highest_year}"
+        
+        elif "lowest year" in question:
+            answer = f"The lowest attendance year was {lowest_year}"
+
+        elif "total attendance" in question:
+            answer = f"The total attendance is {total_attendance}"
+
+        elif "trend" in question:
+            answer = f"Attendance trend is {trend}"
+
+        else:
+            answer = "I don't understand the question yet."
+
+    return render(request, 'reports/ai_assistant.html', {'answer': answer})
+    
