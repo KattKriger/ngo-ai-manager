@@ -67,6 +67,24 @@ def report_list(request):
         flat=True
     ).distinct().order_by('year')
 
+    recommendations = []
+    if trend == "Increasing":
+        recommendations.append("Attendance is gorwing. Consider increasing shelter resources.")
+    if total_deaths and total_reports:
+        average_deaths = total_deaths / total_reports
+
+        if average_deaths > 10:
+            recommendations.append("Death rate is high. Investigate health and veterinary processes.")
+    if total_external_attendance and total_internal_attendance:
+        recommendations.append("External attendance exceeds internal attendance. Review outreach programs.")
+
+    attendance_values = [item['total_attendance'] for item in chart_data]
+    predicted_next_year = None
+    if len(attendance_values) >= 2:
+        growth = (attendance_values[-1] - attendance_values[0]) / (len(attendance_values) - 1)
+        predicted_next_year = int(attendance_values[-1] + growth)
+
+
     #TEMPLATE
     return render(request, 'reports/report_list.html', {
         'reports': reports,
@@ -80,6 +98,8 @@ def report_list(request):
         'lowest_year': lowest_year,
         'trend': trend,
         'chart_data': chart_data,
+        'recommendations': recommendations,
+        'predicted_next_year': predicted_next_year,
     })
 
 def create_report(request):
