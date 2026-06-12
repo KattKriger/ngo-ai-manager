@@ -32,6 +32,12 @@ HTML
             <h2>Total Internal Attendance: {{ total_internal_attendance }}</h2>
             <h2>Total External Attendance: {{ total_external_attendance }}</h2>
             <h2>Total Deaths: {{ total_deaths }}</h2>
+
+            <h3>AI Insights</h3>
+            <p>Highest attendance year: <strong>{{ highest_year }}</strong></p>
+            <p>Lowest attendance year: <strong>{{ lowest_year }}</strong></p>
+            <p>Trend: <strong>{{ trend }}</strong></p>
+
             <h2>Attendance by Year</h2>
             <canvas id="attendanceChart"></canvas>
             <a href="/export/" class="btn btn-success">
@@ -41,6 +47,7 @@ HTML
                 Import Excel
             </a>
             <table class="table table-striped table-bordered">
+        
                 <thead class="table-dark">
                     <tr>
                         <th>Year</th>
@@ -48,17 +55,28 @@ HTML
                         <th>Internal Attendance</th>
                         <th>External Attendance</th>
                         <th>Deaths</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for report in reports %}
+
                     <tr>
                         <td>{{ report.year }}</td>
                         <td>{{ report.month }}</td>
                         <td>{{ report.internal_attendance }}</td>
                         <td>{{ report.external_attendance }}</td>
-                        <td>{{ report.deaths }}</td>
+                        <td>{{ report.deaths }}</td>                        
+                        <td>
+                            <a href="{% url 'edit_report' report.id %}" class="btn btn-warning btn-sm">
+                                Edit
+                            </a>
+                            <a href="{% url 'delete_report' report.id %}" class="btn btn-danger btn-sm">
+                                Delete
+                            </a>
+                        </td>
                     </tr>
+
                     {% endfor %}
                 </tbody>
             </table>

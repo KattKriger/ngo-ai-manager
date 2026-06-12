@@ -5,6 +5,7 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from openpyxl import Workbook
 from openpyxl import load_workbook
+from django.shortcuts import get_object_or_404
 
 
 def report_list(request):
@@ -12,6 +13,35 @@ def report_list(request):
     selected_year = request.GET.get('year')
 
     reports = Report.objects.all()
+
+    attendance_by_year = (
+        Report.objects
+        .values('year')
+        .annotate(
+            total=Sum('internal_attendance') + Sum('external_attendance'))
+        .order_by('year')
+    )
+
+    highest_year = None
+    lowest_year = None
+    trend = "Not enough data"
+
+    data = list(attendance_by_year)
+
+    if len(data) >= 2:
+        highest = max(data, key=lambda x: x['total'])
+        lowest = min(data, key=lambda x: x['total'])
+
+        highest_year = highest['year']
+        lowest_year = lowest['year']
+
+        if data[-1]['total'] > data[0]['total']:
+            trend = "Increasing"
+        elif data[-1]['total'] < data[0]['total']:
+            trend = "Decreasing"
+        else:
+            trend = "Stable"
+
     chart_data = (
         Report.objects
         .values('year')
@@ -37,6 +67,7 @@ def report_list(request):
         flat=True
     ).distinct().order_by('year')
 
+    #TEMPLATE
     return render(request, 'reports/report_list.html', {
         'reports': reports,
         'years': years,
@@ -45,6 +76,9 @@ def report_list(request):
         'total_internal_attendance': total_internal_attendance,
         'total_external_attendance': total_external_attendance,
         'total_deaths': total_deaths,
+        'highest_year': highest_year,
+        'lowest_year': lowest_year,
+        'trend': trend,
         'chart_data': chart_data,
     })
 
@@ -106,6 +140,9 @@ def import_excel(request):
         workbook = load_workbook(excel_file)
 
         sheet = workbook.active
+
+        imported = 0
+        skipped = 0
         
         for row in sheet.iter_rows(min_row=2, values_only=True):
 
@@ -115,6 +152,17 @@ def import_excel(request):
             external_attendance = row[3]
             deaths = row[4]
 
+            existing = Report.objects.filter(
+                year=year,
+                month=month
+            ).exists()
+
+            if existing:
+                skipped += 1
+                continue
+
+            imported += 1
+
             Report.objects.create(
                 year=year,
                 month=month,
@@ -122,7 +170,51 @@ def import_excel(request):
                 external_attendance=external_attendance,
                 deaths=deaths
             )
-        
+
+        print(f"Imported: {imported}")
+        print(f"Skipped: {skipped}")
+
         return redirect('/')
     
     return render(request, 'reports/import_excel.html')
+
+def edit_report(request, report_id):
+    
+    report = get_object_or_404(
+        Report,
+        id=report_id
+    )
+
+    if request.method == 'POST':
+    
+        form = ReportForm(
+            request.POST,
+            instance=report
+        )
+
+        if form.is_valid():
+            form.save()
+            return redirect('/')
+    else:
+        form = ReportForm(
+            instance=report
+        )
+
+    return render(
+        request,
+        'reports/create_report.html',
+        {'form': form}
+    )
+
+def delete_report(request, report_id):
+    
+    report = get_object_or_404(
+        Report,
+        id=report_id
+    )
+
+    report.delete()
+
+    return redirect('/')
+
+
