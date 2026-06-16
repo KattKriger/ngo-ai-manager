@@ -10,6 +10,23 @@ from django.shortcuts import get_object_or_404
 
 def report_list(request):
 
+    chart_type = request.GET.get('chart', 'attendance')
+
+    if chart_type == 'deaths':
+        chart_data = (
+            Report.objects
+            .values('year')
+            .annotate(total=Sum('deaths'))
+            .order_by('year')
+        )
+    else:
+        chart_data = (
+            Report.objects
+            .values('year')
+            .annotate(total=Sum('internal_attendance') + Sum('external_attendance'))
+            .order_by('year')
+        )
+
     selected_year = request.GET.get('year')
 
     reports = Report.objects.all()
@@ -17,30 +34,36 @@ def report_list(request):
     attendance_by_year = (
         Report.objects
         .values('year')
-        .annotate(
-            total=Sum('internal_attendance') + Sum('external_attendance'))
+        .annotate(total=Sum('internal_attendance') + Sum('external_attendance'))
         .order_by('year')
     )
+
+    data = list(attendance_by_year)
 
     highest_year = None
     lowest_year = None
     trend = "Not enough data"
 
-    data = list(attendance_by_year)
-
-    if len(data) >= 2:
+    if len(data) > 0:
         highest = max(data, key=lambda x: x['total'])
         lowest = min(data, key=lambda x: x['total'])
 
         highest_year = highest['year']
         lowest_year = lowest['year']
 
-        if data[-1]['total'] > data[0]['total']:
-            trend = "Increasing"
-        elif data[-1]['total'] < data[0]['total']:
-            trend = "Decreasing"
-        else:
-            trend = "Stable"
+        if len(data) > 1:
+
+            if data[-1]['total'] > data[0]['total']:
+                trend = "Increasing"
+            elif data[-1]['total'] < data[0]['total']:
+                trend = "Decreasing"
+            else:
+                trend = "Stable"
+
+    if chart_type == 'deaths':
+        chart_title = "Deaths by Year"
+    else:
+        chart_title = "Attendance by Year"
 
     chart_data = (
         Report.objects
@@ -100,6 +123,8 @@ def report_list(request):
         'chart_data': chart_data,
         'recommendations': recommendations,
         'predicted_next_year': predicted_next_year,
+        'chart_type': chart_type,
+        'chart_title': chart_title
     })
 
 def create_report(request):
@@ -238,19 +263,44 @@ def delete_report(request, report_id):
     return redirect('/')
 
 def ai_assistant(request):
+
     answer = ""
+
+    Reports = Report.objects.all()
+
+    attendance_by_year = {}
+
+    for report in Reports:
+
+        total = (report.internal_attendance or 0) + (report.external_attendance or 0)
+        attendance_by_year[report.year] = (attendance_by_year.get(report.year, 0) + total)
+
+        highest_year = max(attendance_by_year, key=attendance_by_year.get)
+        lowest_year = min(attendance_by_year, key=attendance_by_year.get)
+        total_attendance = sum(attendance_by_year.values())
+        total_deaths = sum((report.deaths or 0) for report in Reports)
+
+    years = sorted(attendance_by_year.keys())
+    predicted_next_year = 0
+
+    if len(years) >= 2:
+       attendance_values = list(attendance_by_year.values())
+       predicted_next_year = None
+
+    if len(attendance_values) >= 2:
+        growth = (attendance_values[-1] - attendance_values[0]) / (len(attendance_values) - 1)
+        predicted_next_year = int(attendance_values[-1] + growth)
+
+    elif len(years) == 1:
+        predicted_next_year = attendance_by_year[years[0]]
+
+
 
     if request.method == 'POST':
         question = request.POST.get('question',"").lower()
-        reports = Report.objects.all()
-
-        total_attendance = sum(
-            (r.internal_attendance or 0) + (r.external_attendance or 0)
-            for r in reports
-        )
 
         if "best year" in question:
-            answer = f"The best attendance yaer was {highest_year}"
+            answer = f"The best attendance year was {highest_year}"
         
         elif "lowest year" in question:
             answer = f"The lowest attendance year was {lowest_year}"
@@ -258,8 +308,20 @@ def ai_assistant(request):
         elif "total attendance" in question:
             answer = f"The total attendance is {total_attendance}"
 
-        elif "trend" in question:
-            answer = f"Attendance trend is {trend}"
+        elif "deaths" in question:
+            answer = f"The total deaths recorded: {total_deaths}"
+
+        elif "reports" in question:
+            answer = f"There are {Reports.count()} reports"
+
+        elif "forecast" in question:
+            answer = f"Predicted attendance for next year: {predicted_next_year}"
+
+        elif "chart deaths" in question:
+             return redirect('/?chart=deaths')
+
+        elif "attendance chart" in question:
+             return redirect('/?chart=attendance')
 
         else:
             answer = "I don't understand the question yet."
