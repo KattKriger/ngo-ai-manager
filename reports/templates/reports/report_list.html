@@ -169,7 +169,7 @@ HTML
                 {% for item in chart_data %}
                 {
                     "year": "{{ item.year }}",
-                    "total": {{ item.total_attendance }},
+                    "total": {{ item.total }},
                 }{% if not forloop.last %},{% endif %}
                 {% endfor %}
             ]
@@ -185,7 +185,7 @@ HTML
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Attendance',
+                        label: '{{ chart_title }}',
                         data: values 
                     }]
                 }

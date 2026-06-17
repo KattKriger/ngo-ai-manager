@@ -299,7 +299,14 @@ def ai_assistant(request):
     if request.method == 'POST':
         question = request.POST.get('question',"").lower()
 
-        if "best year" in question:
+        
+        if "deaths chart" in question:
+             return redirect('/?chart=deaths')
+
+        elif "attendance chart" in question:
+             return redirect('/?chart=attendance')
+
+        elif "best year" in question:
             answer = f"The best attendance year was {highest_year}"
         
         elif "lowest year" in question:
@@ -317,14 +324,8 @@ def ai_assistant(request):
         elif "forecast" in question:
             answer = f"Predicted attendance for next year: {predicted_next_year}"
 
-        elif "chart deaths" in question:
-             return redirect('/?chart=deaths')
-
-        elif "attendance chart" in question:
-             return redirect('/?chart=attendance')
-
         else:
             answer = "I don't understand the question yet."
-
+            
     return render(request, 'reports/ai_assistant.html', {'answer': answer})
     
