@@ -173,6 +173,9 @@ HTML
                 }{% if not forloop.last %},{% endif %}
                 {% endfor %}
             ]
+                console.log(chartData);
+
+
             const labels = chartData.map(item => item.year);
             const values = chartData.map(item => item.total);
 

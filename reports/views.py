@@ -12,21 +12,6 @@ def report_list(request):
 
     chart_type = request.GET.get('chart', 'attendance')
 
-    if chart_type == 'deaths':
-        chart_data = (
-            Report.objects
-            .values('year')
-            .annotate(total=Sum('deaths'))
-            .order_by('year')
-        )
-    else:
-        chart_data = (
-            Report.objects
-            .values('year')
-            .annotate(total=Sum('internal_attendance') + Sum('external_attendance'))
-            .order_by('year')
-        )
-
     selected_year = request.GET.get('year')
 
     reports = Report.objects.all()
@@ -60,17 +45,25 @@ def report_list(request):
             else:
                 trend = "Stable"
 
+    chart_data = (
+    Report.objects
+    .values('year')
+    .annotate(total=Sum('internal_attendance') + Sum('external_attendance'))
+    .order_by('year')
+)
+
     if chart_type == 'deaths':
         chart_title = "Deaths by Year"
+
+        chart_data = (
+            Report.objects
+            .values('year')
+            .annotate(total=Sum('deaths'))
+            .order_by('year')
+        )
     else:
         chart_title = "Attendance by Year"
 
-    chart_data = (
-        Report.objects
-        .values('year')
-        .annotate(total_attendance=Sum('internal_attendance') + Sum('external_attendance'))
-        .order_by('year')
-    )
     total_reports = reports.count()
     total_internal_attendance = reports.aggregate(
         Sum('internal_attendance')
@@ -101,7 +94,7 @@ def report_list(request):
     if total_external_attendance and total_internal_attendance:
         recommendations.append("External attendance exceeds internal attendance. Review outreach programs.")
 
-    attendance_values = [item['total_attendance'] for item in chart_data]
+    attendance_values = [item['total'] for item in chart_data]
     predicted_next_year = None
     if len(attendance_values) >= 2:
         growth = (attendance_values[-1] - attendance_values[0]) / (len(attendance_values) - 1)
@@ -277,7 +270,7 @@ def ai_assistant(request):
 
         highest_year = max(attendance_by_year, key=attendance_by_year.get)
         lowest_year = min(attendance_by_year, key=attendance_by_year.get)
-        total_attendance = sum(attendance_by_year.values())
+        total = sum(attendance_by_year.values())
         total_deaths = sum((report.deaths or 0) for report in Reports)
 
     years = sorted(attendance_by_year.keys())
@@ -313,7 +306,7 @@ def ai_assistant(request):
             answer = f"The lowest attendance year was {lowest_year}"
 
         elif "total attendance" in question:
-            answer = f"The total attendance is {total_attendance}"
+            answer = f"The total attendance is {total}"
 
         elif "deaths" in question:
             answer = f"The total deaths recorded: {total_deaths}"
@@ -326,6 +319,6 @@ def ai_assistant(request):
 
         else:
             answer = "I don't understand the question yet."
-            
+
     return render(request, 'reports/ai_assistant.html', {'answer': answer})
     
