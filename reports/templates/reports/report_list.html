@@ -14,6 +14,7 @@ HTML
     </head>
     <body>
 
+    <div class="container mt-4">
         <form method="get" class="container mt-4 d-flex gap-2 align-items-center">
             <select name="year" class="form-select">
                 <option value="">All Years</option>
@@ -29,10 +30,10 @@ HTML
             <button type="submit" class="btn btn-primary">Filter</button>
         </form>
         
-        <div class="row mb-4">
-            <h1 class="mb-4">NGO Reports Dashboard</h1>
-            
-            <div class="col-md-3">
+        <h1 class="mb-4">NGO Analytics Dashboard</h1>
+
+        <div class="row">
+            <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center">
                     <div class="card-body">
                         <h2>Total Reports:</h2>
@@ -41,7 +42,7 @@ HTML
                 </div>
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center">
                     <div class="card-body">
                         <h2>Total Internal Attendance:</h2>
@@ -50,7 +51,7 @@ HTML
                 </div>
             </div>
             
-            <div class="col-md-3">
+            <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center">
                     <div class="card-body">
                         <h2>Total External Attendance:</h2>
@@ -58,7 +59,7 @@ HTML
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center">
                     <div class="card-body">
                         <h2>Total Deaths:</h2>
@@ -68,48 +69,63 @@ HTML
             </div>
 
         </div>
-        <div class="row">
+        <div class="row mb-4">
 
-            <div class="col-md-4">
-                <div class="card-body">
-                    <h3>AI Insights</h3>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h4>AI Insights</h4>
+                            <p>Highest attendance year: <strong>{{ highest_year }}</strong></p>
 
-                    <div class="card p-3 mb-3">
-                        <p>Highest attendance year: <strong>{{ highest_year }}</strong></p>
+                            <p>Lowest attendance year: <strong>{{ lowest_year }}</strong></p>
 
-                        <p>Lowest attendance year: <strong>{{ lowest_year }}</strong></p>
-
-                        <p>Trend: <strong>{{ trend }}</strong></p>
+                            <p>Trend: <strong>{{ trend }}</strong></p>
                     </div>
-
                 </div>
             </div>
             
-            <div class="col-md-4">
-                <div class="card-body">
-                    <h4>Recommendations</h4>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h4>Recommendations</h4>
                         <ul>
                             {% for recommendation in recommendations %}
                                 <li>{{ recommendation }}</li>
                             {% endfor %}
                         </ul>
+                    </div>
                 </div>
             </div>
 
-            <div class="col-md-4">
-                <div class="card-body">
-                    <h4>Forecast</h4>
-                    {% if predicted_next_year %}
-                        <p>Predicted attendance for next year: <strong>{{ predicted_next_year }}</strong></p>
-                    {% endif %}
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h4>Forecast</h4>
+                        {% if predicted_next_year %}
+                            <p>Predicted attendance for next year: <strong>{{ predicted_next_year }}</strong></p>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 
 
-            <div class="card-mb-4">
+            <div class="mb-3">
+                <a href="/?chart=attendance" class="btn btn-primary">
+                    Attendance
+                </a>
+                <a href="/?chart=deaths" class="btn btn-danger">
+                    Deaths
+                </a>
+                <a href="/assistant/" class="btn btn-dark">
+                    AI Assistant
+                </a>                
+            </div>
+            <div class="card-mt-4">
                 <div class="card-body" style="height: 400px;">
                     <h3>{{ chart_title }}</h3>
-                    <canvas id="attendanceChart"></canvas>
+                    <div style="height: 400px;">
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
                 </div>
             </div>
 
@@ -120,47 +136,46 @@ HTML
                 <a href="/import/" class="btn btn-primary">
                     Import Excel
                 </a>
-                <a href="/assistant/" class="btn btn-dark">
-                    AI Assistant
-                </a>
             </div>
 
 
-            <table class="table table-striped table-bordered">
-        
-                <thead class="table-dark">
-                    <tr>
-                        <th>Year</th>
-                        <th>Month</th>
-                        <th>Internal Attendance</th>
-                        <th>External Attendance</th>
-                        <th>Deaths</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for report in reports %}
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+            
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Year</th>
+                            <th>Month</th>
+                            <th>Internal Attendance</th>
+                            <th>External Attendance</th>
+                            <th>Deaths</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in reports %}
 
-                    <tr>
-                        <td>{{ report.year }}</td>
-                        <td>{{ report.month }}</td>
-                        <td>{{ report.internal_attendance }}</td>
-                        <td>{{ report.external_attendance }}</td>
-                        <td>{{ report.deaths }}</td>                        
-                        <td>
-                            <a href="{% url 'edit_report' report.id %}" class="btn btn-warning btn-sm">
-                                Edit
-                            </a>
-                            <a href="{% url 'delete_report' report.id %}" class="btn btn-danger btn-sm">
-                                Delete
-                            </a>
-                        </td>
-                    </tr>
-
-                    {% endfor %}
-                </tbody>
-            </table>
+                        <tr>
+                            <td>{{ report.year }}</td>
+                            <td>{{ report.month }}</td>
+                            <td>{{ report.internal_attendance }}</td>
+                            <td>{{ report.external_attendance }}</td>
+                            <td>{{ report.deaths }}</td>                        
+                            <td>
+                                <a href="{% url 'edit_report' report.id %}" class="btn btn-warning btn-sm">
+                                    Edit
+                                </a>
+                                <a href="{% url 'delete_report' report.id %}" class="btn btn-danger btn-sm">
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+             </div>
         </div>
+    </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
