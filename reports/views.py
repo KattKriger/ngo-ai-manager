@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from openpyxl import Workbook
 from openpyxl import load_workbook
 from django.shortcuts import get_object_or_404
+from .ai_service import ask_ai
 
 
 def report_list(request):
@@ -322,3 +323,32 @@ def ai_assistant(request):
 
     return render(request, 'reports/ai_assistant.html', {'answer': answer})
     
+
+def ai_analysis(request):
+
+    reports = Report.objects.all()
+
+    prompt = "NGO Statistics:\n\n"
+
+    for report in reports:
+        prompt += (
+            f"Year: {report.year}, "
+            f"Month: {report.month}, "
+            f"Internal: {report.internal_attendance}, "
+            f"External: {report.external_attendance}, "
+            f"Deaths: {report.deaths}\n"
+        )
+
+    prompt += ""
+
+Analyze the NGO reports.
+
+1. Executive summary
+2. Trends
+3. Recommendations
+4. Forecast
+""
+
+    answer = ask_ai(prompt)
+
+    return JsonResponse({'answer': answer})

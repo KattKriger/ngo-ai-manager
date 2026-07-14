@@ -18,4 +18,5 @@ urlpatterns = [
     path ('edit/<int:report_id>/', edit_report, name='edit_report'),
     path ('delete/<int:report_id>/', delete_report, name='delete_report'),
     path('assistant/', ai_assistant, name='ai_assistant'),
+    path('ai-analysis/', views.ai_analysis, name='ai_analysis'),
 ]  
