@@ -1,4 +1,3 @@
-from .models import Report
 from django.shortcuts import render, redirect
 from .forms import ReportForm
 from django.db.models import Sum
@@ -7,6 +6,7 @@ from openpyxl import Workbook
 from openpyxl import load_workbook
 from django.shortcuts import get_object_or_404
 from .ai_service import ask_ai
+from .models import Report
 
 
 def report_list(request):
@@ -260,95 +260,32 @@ def ai_assistant(request):
 
     answer = ""
 
-    Reports = Report.objects.all()
-
-    attendance_by_year = {}
-
-    for report in Reports:
-
-        total = (report.internal_attendance or 0) + (report.external_attendance or 0)
-        attendance_by_year[report.year] = (attendance_by_year.get(report.year, 0) + total)
-
-        highest_year = max(attendance_by_year, key=attendance_by_year.get)
-        lowest_year = min(attendance_by_year, key=attendance_by_year.get)
-        total = sum(attendance_by_year.values())
-        total_deaths = sum((report.deaths or 0) for report in Reports)
-
-    years = sorted(attendance_by_year.keys())
-    predicted_next_year = 0
-
-    if len(years) >= 2:
-       attendance_values = list(attendance_by_year.values())
-       predicted_next_year = None
-
-    if len(attendance_values) >= 2:
-        growth = (attendance_values[-1] - attendance_values[0]) / (len(attendance_values) - 1)
-        predicted_next_year = int(attendance_values[-1] + growth)
-
-    elif len(years) == 1:
-        predicted_next_year = attendance_by_year[years[0]]
-
-
-
     if request.method == 'POST':
-        question = request.POST.get('question',"").lower()
+        question = request.POST.get('question', "")
 
-        
-        if "deaths chart" in question:
-             return redirect('/?chart=deaths')
+        reports = Report.objects.all()
 
-        elif "attendance chart" in question:
-             return redirect('/?chart=attendance')
+        prompt = f"""The user asked: {question} Here are the NGO reports: """
 
-        elif "best year" in question:
-            answer = f"The best attendance year was {highest_year}"
-        
-        elif "lowest year" in question:
-            answer = f"The lowest attendance year was {lowest_year}"
+        for report in reports:
+            prompt += (
+                f"Year: {report.year}, "
+                f"Month: {report.month}, "
+                f"Internal: {report.internal_attendance}, "
+                f"External: {report.external_attendance}, "
+                f"Deaths: {report.deaths}\n"
+            )
 
-        elif "total attendance" in question:
-            answer = f"The total attendance is {total}"
+        prompt += """
 
-        elif "deaths" in question:
-            answer = f"The total deaths recorded: {total_deaths}"
+    Analyze the NGO reports.
 
-        elif "reports" in question:
-            answer = f"There are {Reports.count()} reports"
+    1. Executive summary
+    2. Trends
+    3. Recommendations
+    4. Forecast
+    """
 
-        elif "forecast" in question:
-            answer = f"Predicted attendance for next year: {predicted_next_year}"
-
-        else:
-            answer = "I don't understand the question yet."
+        answer = ask_ai(prompt)
 
     return render(request, 'reports/ai_assistant.html', {'answer': answer})
-    
-
-def ai_analysis(request):
-
-    reports = Report.objects.all()
-
-    prompt = "NGO Statistics:\n\n"
-
-    for report in reports:
-        prompt += (
-            f"Year: {report.year}, "
-            f"Month: {report.month}, "
-            f"Internal: {report.internal_attendance}, "
-            f"External: {report.external_attendance}, "
-            f"Deaths: {report.deaths}\n"
-        )
-
-    prompt += ""
-
-Analyze the NGO reports.
-
-1. Executive summary
-2. Trends
-3. Recommendations
-4. Forecast
-""
-
-    answer = ask_ai(prompt)
-
-    return JsonResponse({'answer': answer})

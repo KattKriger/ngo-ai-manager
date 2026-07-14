@@ -7,7 +7,7 @@ from .views import (
     import_excel,
     edit_report,
     delete_report,
-    ai_assistant
+    ai_assistant,
 )
 
 urlpatterns = [
@@ -17,6 +17,5 @@ urlpatterns = [
     path('import/', import_excel, name='import_excel'),
     path ('edit/<int:report_id>/', edit_report, name='edit_report'),
     path ('delete/<int:report_id>/', delete_report, name='delete_report'),
-    path('assistant/', ai_assistant, name='ai_assistant'),
-    path('ai-analysis/', views.ai_analysis, name='ai_analysis'),
+    path('assistant/', ai_assistant, name='ai_assistant')
 ]  
