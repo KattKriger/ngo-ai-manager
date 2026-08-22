@@ -8,101 +8,94 @@
     <head>
 
 
-        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <link rel="stylesheet" href="{% static 'css/style.css' %}?v=6">
 
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-        <title>AI-powered NGO Analytics Dashboard</title>
+        <title>AI-powered decision support for humanitarian organizations</title>
 
     </head>
     <body>
 
-    <div class="text-center mb-5">
-              
-        <h1 class="display-4 fw-bold">
-            NGO Analytics Dashboard
-        </h1>
-        <p>
-            AI Powered Analytics Dashboard
-        </p>
+    <div class="container">
+        <header class="hero">
+            <h1>
+                NGO Insight AI
+            </h1>
+            <p>
+                AI Powered decision support
+            </p>
+        </header>
     </div>
-    <div>
-        <form method="GET" class="row mb-5">
-            <div class = col-md-10>
-                <select name="year" class="form-select">
-                    <option value="">All Years</option>
-                    {% for year in years %}
-                        <option value="{{ year }}"
-                            {% if selected_year|stringformat:"s" == year|stringformat:"s" %}
-                                selected
-                            {% endif %}>
-                            {{ year }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class = col-md-2>
-                <button type="submit" class="btn btn-primary w-100">Filter</button>
-            </div>
+    <div class="container">
+        <form class="filter-bar" method="GET">
+            <select name="year" class="filter-select">
+                <option value="">All Years</option>
+                {% for year in years %}
+                    <option value="{{ year }}"
+                        {% if selected_year|stringformat:"s" == year|stringformat:"s" %}
+                            selected
+                        {% endif %}>
+                        {{ year }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary">
+                Filter
+            </button>
         </form>
         
 
 
-        <div class="row g-4 align-items-stretch border-left:6px solid #2563eb;">
-            <div class="col-lg-3  col-md-6 mb-4">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body text-center">
+        <div class="info-grid-KPI">
+            <div class="kpi-card">
+                <div>
+                    <div class="card-content">
                         <h2>Total Reports:</h2>
-                        <h2>{{ total_reports }}</h2>
+                        <div class="stat-number">{{ total_reports }}</div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-3  col-md-6 mb-4 border-left:6px solid #22c55e">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body text-center">
+            <div class="kpi-card">
+                <div>
+                    <div class="card-content">
                         <h2>Total Internal Attendance:</h2>
-                        <h2>{{ total_internal_attendance }}</h2>
+                        <div class="stat-number">{{ total_internal_attendance }}</div>
                     </div>
                 </div>
             </div>
             
-            <div class="col-lg-3  col-md-6 mb-4 border-left:6px solid #f59e0b;">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body text-center">
+            <div class="kpi-card">
+                <div>
+                    <div class="card-content">
                         <h2>Total External Attendance:</h2>
-                        <h2>{{ total_external_attendance }}</h2>
+                        <div class="stat-number">{{ total_external_attendance }}</div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3  col-md-6 mb-4 border-left:6px solid #ef4444;">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body text-center">
+            <div class="kpi-card">
+                <div>
+                    <div class="card-content">
                         <h2>Total Deaths:</h2>
-                        <h2>{{ total_deaths }}</h2>
+                        <div class="stat-number">{{ total_deaths }}</div>
                     </div>
                 </div>
             </div>
-
         </div>
-        <div class="row mb-4">
 
-            <div class="col-md-4 mb-3">
-                <div class="card h-100">
-                    <div class="card-body">
+        
+        <div class="info-grid-AI">
+            <div class="info-card">
+                    <div class="ai-card-content">
                         <h4>AI Insights</h4>
-                            <p>Highest attendance year: <strong>{{ highest_year }}</strong></p>
+                            <p>Highest attendance: <strong>{{ highest_year }}</strong></p>
 
-                            <p>Lowest attendance year: <strong>{{ lowest_year }}</strong></p>
+                            <p>Lowest attendance: <strong>{{ lowest_year }}</strong></p>
 
                             <p>Trend: <strong>{{ trend }}</strong></p>
                     </div>
-                </div>
             </div>
-            
-            <div class="col-md-4 mb-3">
-                <div class="card h-100">
-                    <div class="card-body">
+            <div class="info-card">
+                    <div class="ai-card-content">
                         <h4>Recommendations</h4>
                         <ul>
                             {% for recommendation in recommendations %}
@@ -110,42 +103,40 @@
                             {% endfor %}
                         </ul>
                     </div>
+            </div>
+            <div class="info-card">
+                <div class="ai-card-content">
+                    <h4>Forecast</h4>
+                    {% if predicted_next_year %}
+                        <p>Predicted attendance for next year: <strong>{{ predicted_next_year }}</strong></p>
+                    {% endif %}
                 </div>
             </div>
-
-            <div class="col-md-4 mb-3">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h4>Forecast</h4>
-                        {% if predicted_next_year %}
-                            <p>Predicted attendance for next year: <strong>{{ predicted_next_year }}</strong></p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
+        </div>
 
 
-            <div class="mb-3">
+
+            <div class="actions">
                 <a href="/?chart=attendance" class="btn btn-primary">
                     Attendance
                 </a>
                 <a href="/?chart=deaths" class="btn btn-danger">
                     Deaths
                 </a>
-                <a href="/assistant/" class="btn btn-dark">
+                <a href="/assistant/" class="btn btn-success">
                     AI Assistant
                 </a>
-                <a href="/export/" class="btn btn-success">
+                <a href="/export/" class="btn btn-export">
                     Export to Excel
                 </a>
-                <a href="/import/" class="btn btn-info">
+                <a href="/import/" class="btn btn-import">
                     Import Excel
                 </a>              
             </div>
-            <div class="card-mt-4">
-                <div class="card-body" style="height: 400px;">
+            <div class="bottom-grid">
+                <div class="chart-card">
                     <h3>{{ chart_title }}</h3>
-                    <div style="height: 400px;">
+                    <div class="chart-container"">
                         <canvas id="attendanceChart"></canvas>
                     </div>
                 </div>
@@ -174,10 +165,10 @@
                             <td>{{ report.external_attendance }}</td>
                             <td>{{ report.deaths }}</td>                        
                             <td>
-                                <a href="{% url 'edit_report' report.id %}" class="btn btn-warning btn-sm">
+                                <a href="{% url 'edit_report' report.id %}" class="btn btn-edit">
                                     Edit
                                 </a>
-                                <a href="{% url 'delete_report' report.id %}" class="btn btn-danger btn-sm">
+                                <a href="{% url 'delete_report' report.id %}" class="btn btn-delete">
                                     Delete
                                 </a>
                             </td>
@@ -186,9 +177,10 @@
                     </tbody>
                 </table>
              </div>
-             <footer class="text-center mt-5 mb-3">
+             <footer class="text-center">
                 <small>
-                    NGO Analytics Dashboard - Built with Django and Chart.js
+                    Helping humanitarian organizations transform data into better decisions
+                    | Built with Python Django Chart.js HTML CSS JavaScript 
                 </small>
             </footer>
         </div>
@@ -198,14 +190,12 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
             const chartData = [
-                {% for item in chart_data %}
-                {
-                    "year": "{{ item.year }}",
-                    "total": {{ item.total }},
-                }
-                {% if not forloop.last %},
-                {% endif %}
-                {% endfor %}
+            {% for item in chart_data %}
+            {
+                year: "{{ item.year }}",
+                total: {{ item.total }}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
             ]
                 console.log(chartData);
 
