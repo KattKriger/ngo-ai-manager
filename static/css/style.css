@@ -333,4 +333,34 @@ body{
     border-left: 6px solid var(--forest);
 }
 
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 30px;
+}
 
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.table th, .table td {
+    padding: 14px 12px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.table th {
+    font-weight: 600;
+}
+
+.table th:last-child, .table td:last-child {
+    width: 220px;
+}
+
+.table td:last-child .btn {
+    display: inline-block;
+    width: 90px;
+    margin: 3px;
+}

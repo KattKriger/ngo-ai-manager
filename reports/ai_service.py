@@ -8,7 +8,7 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def ask_ai(prompt):
     completion = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="openai/gpt-oss-120b",
         messages=[
             {"role": "system", "content": "You are an expert NGO data analyst."},
             {"role": "user", "content": prompt}
