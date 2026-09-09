@@ -7,6 +7,9 @@ from openpyxl import load_workbook
 from django.shortcuts import get_object_or_404
 from .ai_service import ask_ai
 from .models import Report
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def report_list(request):
@@ -286,6 +289,10 @@ def ai_assistant(request):
     4. Forecast
     """
 
+    try:
         answer = ask_ai(prompt)
+    except Exception as exc:
+        logger.exception(f"Error while asking AI: {exc}")
+        answer = "An error occurred while processing your request. Please try again later."
 
     return render(request, 'reports/ai_assistant.html', {'answer': answer})
