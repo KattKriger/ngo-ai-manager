@@ -15,6 +15,7 @@
     </head>
     <body>
 
+    <!-- Header -->
     <div class="container">
         <header class="hero">
             <h1>
@@ -25,6 +26,8 @@
             </p>
         </header>
     </div>
+
+    <!-- Filter -->
     <div class="container">
         <form class="filter-bar" method="GET">
             <select name="year" class="filter-select">
@@ -44,7 +47,7 @@
         </form>
         
 
-
+        <!-- KPI Cards -->
         <div class="info-grid-KPI">
             <div class="kpi-card">
                 <div>
@@ -82,7 +85,7 @@
             </div>
         </div>
 
-        
+        <!-- Cards Info Grid AI -->
         <div class="info-grid-AI">
             <div class="info-card">
                     <div class="ai-card-content">
@@ -115,7 +118,7 @@
         </div>
 
 
-
+            <!-- Buttons -->
             <div class="actions">
                 <a href="/?chart=attendance" class="btn btn-primary">
                     Attendance
@@ -142,6 +145,7 @@
                 </div>
             </div>
 
+            <!-- Table-->
             <div class="table-responsive">
                 <table class="table table-striped table-bordered table-hover shadow">
             
@@ -177,6 +181,8 @@
                     </tbody>
                 </table>
              </div>
+
+             <!-- Footer -->
              <footer class="text-center">
                 <small>
                     Helping humanitarian organizations transform data into better decisions
@@ -186,19 +192,57 @@
         </div>
     </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- First Visit Tutorial -->
+        <div class="welcome-modal" id= "welcomeModal">
+            <div class="welcome-modal-content">
+                <div>
+
+                    <div class="welcome-modal-header">
+                        <h5 class="welcome-modal-title" id="welcomeModalLabel">Welcome to NGO Insight AI</h5>
+                        <button type="button" class="welcome-modal-close" id="closeWelcome"></button>
+                    </div>
+
+                    <div class="welcome-modal-body">
+                        <p>A quick guide to help you get started:</p>
+
+                        <div class="class mb-3">
+                            <strong>Export data</strong>
+                            <p>Use the "Export Excel" button to download and modify data in Excel format.</p>
+                        </div>
+                        <div class="class mb-3">
+                            <strong>Import data</strong>
+                            <p>Use the "Import Excel" button to add your Reports to the system.</p>
+                        </div>
+                        <div class="class mb-3">
+                            <strong>Analyze Charts and Insights</strong>
+                            <p>Use the interactive charts and graphs to analyze attendance trends.</p>
+                        </div>
+                        <div class="class mb-3">
+                            <strong>Ask the AI Assistant</strong>
+                            <p>Use the AI assistant to ask questions about your data and get insights.</p>
+                        </div>
+
+                    </div>
+
+                    <div class="welcome-modal-footer">
+                        <button type="button" class="welcome-modal-button" id="startExplore">Let's explore!</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart.js -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
             const chartData = [
-            {% for item in chart_data %}
-            {
-                year: "{{ item.year }}",
-                total: {{ item.total }}
-            }{% if not forloop.last %},{% endif %}
-            {% endfor %}
-            ]
+                {% for item in chart_data %}
+                {
+                    year: "{{ item.year }}",
+                    total: {{ item.total }}
+                }{% if not forloop.last %},{% endif %},{% endfor %}
+            ];
                 console.log(chartData);
-
 
             const labels = chartData.map(item => item.year);
             const values = chartData.map(item => item.total);
@@ -217,6 +261,25 @@
                     }]
                 }
             });
+        </script>
+
+        <!-- Modal -->
+        <script>
+            const welcomeModal = document.getElementById('welcomeModal');
+            const closeWelcome = document.getElementById('closeWelcome');
+            const startExplore = document.getElementById('startExplore');
+
+            // Show the modal on first visit
+            function closeTutorial() {
+                welcomeModal.style.display = 'none';
+                localStorage.setItem('ngoInsightTutorialSeen', 'true');
+            }
+            if (!localStorage.getItem('ngoInsightTutorialSeen')) {
+                welcomeModal.style.display = 'flex';
+            }
+
+            closeWelcome.addEventListener('click', closeTutorial);
+            startExplore.addEventListener('click', closeTutorial);
         </script>
     </body>
 </html>

@@ -289,10 +289,11 @@ def ai_assistant(request):
     4. Forecast
     """
 
-    try:
-        answer = ask_ai(prompt)
-    except Exception as exc:
-        logger.exception(f"Error while asking AI: {exc}")
-        answer = "An error occurred while processing your request. Please try again later."
+
+        try:
+            answer = ask_ai(prompt)
+        except Exception as exc:
+            logger.exception(f"Error while asking AI: {exc}")
+            answer = "An error occurred while processing your request. Please try again later."
 
     return render(request, 'reports/ai_assistant.html', {'answer': answer})

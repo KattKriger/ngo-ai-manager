@@ -1,15 +1,24 @@
-HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant - NGO Insight AI</title>
+</head>
 
-<h1>AI Assistant</h1>
+<body>
+    <h1>AI Assistant</h1>
 
-<form method="post">
-    {% csrf_token %}
-    <input type="text" name="question" placeholder="Ask a question...">
-    <button type="submit">Analyze</button>
-</form>
+    <form method="post">
+        {% csrf_token %}
 
-<p>{{ answer }}</p>
+        <input type="text" name="question" placeholder="Ask a question..." value="{{ question|default:'' }}" required>
 
-<hr>
+        <button type="submit">Analyze</button>
+    </form>
 
-<h3>{{ answer }}</h3>
+    {% if answer %}
+        <div>{{ answer }}</div>
+    {% endif %}
+</body>
+</html>
